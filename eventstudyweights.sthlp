@@ -17,12 +17,12 @@
 
 {p 8 15 2}
 {cmd:eventstudyweights}
-{varlist} {ifin}
+{rel_time_list} {ifin}
 {weight}
 [{cmd:,} {it:options}]
  
 {pstd}
-where {it:varlist} is the list of relative time indicators as specified in your two-way fixed effects regression
+where {it:rel_time_list} is the list of relative time indicators as specified in your two-way fixed effects regression
 {p_end}
 		{it:rel_time_1} [{it:rel_time_2} [...]]  
 
@@ -42,7 +42,7 @@ where {it:varlist} is the list of relative time indicators as specified in your 
 {synopt :{opth control:s(varlist)}}residualize the relative time indicators on controls and fixed effects
   
 {syntab :Save Output}
-{synopt :{opt saveweights(filename)}}save weights to {it:filename}.xlsx along with cohort and relative time {p_end}
+{synopt :{opt saveweights(filename)}}save weights to {it:filename}.xlsx along with cohort and relative time, using Stata's built-in {helpb putexcel} {p_end}
 {synoptline}
 {p 4 6 2}
 {opt aweight}s and {opt fweight}s are allowed;
@@ -53,7 +53,7 @@ see {help weight}.
 {title:Description}
 
 {pstd}
-{opt eventstudyweights} }}calculate weights underlying two-way fixed effects regressions with relative time indicators, 
+{opt eventstudyweights} calculate weights underlying two-way fixed effects regressions with relative time indicators, 
 and is optimized for speed in large datasets thanks to {helpb hdfe}.
 
 {pstd}
@@ -64,12 +64,12 @@ the possible relative periods, but may still exclude some periods. (Sun and Abra
  a linear combination of cohort-specific effects from both its own relative period and other relative periods.
 
 {pstd}
-{opt eventstudyweights} calculates the weights underlying the linear combination of treatment effects in the coefficients using
+For each relative time indicator specified in {it:rel_time_list}, {opt eventstudyweights} calculates the weights 
+underlying the linear combination of treatment effects in its associated coefficients using
 an auxiliary regression. It provides built-in options to control for fixed effects and covariates
-(see {help eventstudyweights##controls:Controls}).    {cmd:eventstudyweights} exports these weights to a spreadsheet that can be analyzed separately.
- 
-{marker options}{...}
-{title:Options}
+(see {help eventstudyweights##syntax:Controls}).    {cmd:eventstudyweights} exports these weights to a spreadsheet that can be analyzed separately.
+ This spreadsheet also contains the cohort and relative time each weight corresponds to, with headers as specified in {opt cohort()} and {opt rel_time()}.
+
 
 {dlgtab:Main}
 
