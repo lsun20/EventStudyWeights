@@ -10,7 +10,11 @@
 {title:Title}
 
 {p2colset 5 19 21 2}{...}
-{p2col :{hi:eventstudyweights} {hline 2}}calculate weights underlying two-way fixed effects regressions with relative time indicators{p_end}
+{p2col :{hi:eventstudyweights} {hline 2}}
+estimate the implied weights on the cohort-specific average treatment effects 
+on the treated (CATTs) underlying two-way fixed effects regressions 
+with relative time indicators (event study specifications) 
+{p_end}
 {p2colreset}{...}
  
 {marker syntax}{title:Syntax}
@@ -53,18 +57,15 @@ see {help weight}.
 {title:Description}
 
 {pstd}
-{opt eventstudyweights} calculate weights underlying two-way fixed effects regressions with relative time indicators, 
-and is optimized for speed in large datasets thanks to {helpb hdfe}.
+{opt eventstudyweights} estimate weights underlying two-way fixed effects regressions with relative time indicators, 
+It is optimized for speed in large panel datasets thanks to {helpb hdfe}.
 
 {pstd}
-Researchers are often also interested in dynamic treatment effects, which they estimate by the coefficients   associated with indicators for
-being l periods relative to the treatment, in a specification with unit and time (two-way) fixed effects and covariates. Units are categorized into different
-cohorts based on their initial treatment timing. The relative times  included in this specification cover most of
-the possible relative periods, but may still exclude some periods. (Sun and Abraham 2020) show these coefficients can be written as
- a linear combination of cohort-specific effects from both its own relative period and other relative periods.
+To estimate the dynamic effects of an absorbing treatment, researchers often use two-way fixed effects regressions that include leads and lags of the treatment (event study specification). Units are categorized into different cohorts based on their initial treatment timing. Sun and Abraham (2020) show the coefficients in this event study specification can be written as a linear combination of cohort-specific effects from both its own relative period and other relative periods. 
+{opt eventstudyweights} is a Stata module that estimates these weights for any given event study specification.  
 
 {pstd}
-For each relative time indicator specified in {it:rel_time_list}, {opt eventstudyweights} calculates the weights 
+For each relative time indicator specified in {it:rel_time_list}, {opt eventstudyweights} estimates the weights 
 underlying the linear combination of treatment effects in its associated coefficients using
 an auxiliary regression. It provides built-in options to control for fixed effects and covariates
 (see {help eventstudyweights##syntax:Controls}).    {cmd:eventstudyweights} exports these weights to a spreadsheet that can be analyzed separately.
@@ -95,13 +96,13 @@ Users should shape their dataset to a long format where each observation is at t
 {pstd}Code the relative time categorical variable.{p_end}
 {phang2}. {stata gen ry = year - first_union}{p_end}
 
-{pstd}Suppose we will later use a specification with lead=2 and lag=0,1,2.{p_end}
+{pstd}Suppose we will later use a specification with lead=2 and lag=0,1,2 to estimate the dynamic effect of union status on income.  We first generate these relative time indicators.{p_end}
 {phang2}. {stata gen g_2 = ry == -2}{p_end}
 {phang2}. {stata gen g0 = ry == 0}{p_end}
 {phang2}. {stata gen g1 = ry == 1}{p_end}
 {phang2}. {stata gen g2 = ry == 2}{p_end}
 
-{pstd} Calculate the weights and export to a spreadsheet "weights.xlsx".{p_end}
+{pstd} For the coefficient associate with each of the above relative time indicators in a two-way fixed effects regression, we can estimate the weights and export to a spreadsheet "weights.xlsx".{p_end}
 {phang2}. {stata eventstudyweights g_2 g0 g1 g2, controls(i.idcode i.year) cohort(first_union) rel_time(ry) saveweights("weights") }{p_end}
  
 {marker acknowledgements}{...}
