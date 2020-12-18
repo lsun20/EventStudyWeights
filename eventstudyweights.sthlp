@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0  28aug2020}{...}
+{* *! version 0.1  16Dec2020}{...}
 {viewerjumpto "Syntax" "eventstudyweights##syntax"}{...}
 {viewerjumpto "Description" "eventstudyweights##description"}{...}
 {viewerjumpto "Options" "eventstudyweights##options"}{...}
@@ -104,6 +104,16 @@ Users should shape their dataset to a long format where each observation is at t
 
 {pstd} For the coefficient associate with each of the above relative time indicators in a two-way fixed effects regression, we can estimate the weights and export to a spreadsheet "weights.xlsx".{p_end}
 {phang2}. {stata eventstudyweights g_2 g0 g1 g2, controls(i.idcode i.year) cohort(first_union) rel_time(ry) saveweights("weights") }{p_end}
+ 
+ 
+{pstd} To plot the weights underlying the coefficient associate with, e.g.,  relative time indicator lead=2, you may try {p_end}
+{phang2}. {stata import excel "weights.csv", clear firstrow}{p_end}
+{phang2}. {stata keep g_2 first_union ry}{p_end}
+{phang2}. {stata reshape wide g_2, i(ry) j(first_union)}{p_end}
+{phang2}. {stata graph twoway line g_2* ry}{p_end}
+
+{pstd} You may also check the weights have properties discussed in the paper: {p_end}
+{phang2}. {stata egen w_sum = rowtotal(g_2*)}{p_end}
  
 {marker acknowledgements}{...}
 {title:Acknowledgements}
