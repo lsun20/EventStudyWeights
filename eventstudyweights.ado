@@ -1,10 +1,10 @@
-*! version 0.0  31aug2020  Liyang Sun, lsun20@mit.edu
-
+*! version 0.1  9apr2021  Liyang Sun, lsun20@mit.edu
+** version 0.0  31aug2020  Liyang Sun, lsun20@mit.edu
 program define eventstudyweights, eclass sortpreserve
 	version 13 
-	syntax varlist(min=1 numeric) [if] [in] [aweight fweight], [cohort(varname) ///
+	syntax varlist(min=1 numeric) [if] [in] [aweight fweight], cohort(varname) ///
 		rel_time(varname) ///
-		CONTROLs(varlist numeric ts fv)  saveweights(string)  ///
+		CONTROLs(varlist numeric ts fv)  [saveweights(string)  ///
 		*]
 	set more off
 	
@@ -13,11 +13,16 @@ program define eventstudyweights, eclass sortpreserve
 	markout `touse' `by' `xq' `controls' `absorb', strok
 	* Prepare the list of relative time indicators for partialling out
 	local nvarlist ""
+	local dvarlist ""
+	qui ds
+	local avarlist = r(varlist)
 	foreach l of local varlist {
-		local nvarlist "`nvarlist' n`l'"
+		local dvarlist "`dvarlist' `l'"
+		tempname n`l'
+		qui gen `n`l'' = `l'
+		local nvarlist "`nvarlist' `n`l''"
 	}
-// 	dis "`nvarlist'"
-	qui capture drop  `nvarlist'
+
 	capture hdfe, version 
 	if _rc != 0 {
 		di as err "Error: must have hdfe installed"
@@ -25,7 +30,7 @@ program define eventstudyweights, eclass sortpreserve
 		di in smcl "{stata ssc install hdfe :ssc install hdfe}"
 					exit 601
 	}
-	qui hdfe  `varlist' `wt' if `touse', absorb(`controls') generate(n)
+	qui hdfe  `nvarlist' `wt' if `touse', absorb(`controls') clear keepvars(`avarlist') // residuals are stored in `nvarlist' 
 	* Initiate empty matrix for weights
 	tempname bb bb_w
 
@@ -47,11 +52,15 @@ program define eventstudyweights, eclass sortpreserve
 	}
 	qui capture drop  `nvarlist'
 
- 	matrix colnames `bb' = "`cohort'" "`rel_time'" `varlist'
+ 	matrix colnames `bb' = "`cohort'" "`rel_time'" `dvarlist'
 
 // 	mat list `bb'
-	putexcel set `saveweights', replace
-	putexcel A1=matrix(`bb', colnames) using `saveweights',replace
+	ereturn clear
+	ereturn matrix weights `bb'
+	if "`saveweights'" != "" {
+		putexcel set `saveweights', replace
+		putexcel A1=matrix(`bb', colnames) using `saveweights',replace
+	}
 end
 
  

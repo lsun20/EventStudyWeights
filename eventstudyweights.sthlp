@@ -43,10 +43,10 @@ where {it:rel_time_list} is the list of relative time indicators as specified in
 {helpb hdfe} if necessary.
   
 {syntab :Controls}
-{synopt :{opth control:s(varlist)}}residualize the relative time indicators on controls and fixed effects
+{synopt :{opth control:s(varlist)}}controls and fixed effects as specified in your two-way fixed effects regression
   
 {syntab :Save Output}
-{synopt :{opt saveweights(filename)}}save weights to {it:filename}.xlsx along with cohort and relative time, using Stata's built-in {helpb putexcel} {p_end}
+{synopt :{opt saveweights(filename)}}if specified, save weights to {it:filename}.xlsx along with cohort and relative time, using Stata's built-in {helpb putexcel} {p_end}
 {synoptline}
 {p 4 6 2}
 {opt aweight}s and {opt fweight}s are allowed;
@@ -61,14 +61,20 @@ see {help weight}.
 It is optimized for speed in large panel datasets thanks to {helpb hdfe}.
 
 {pstd}
-To estimate the dynamic effects of an absorbing treatment, researchers often use two-way fixed effects regressions that include leads and lags of the treatment (event study specification). Units are categorized into different cohorts based on their initial treatment timing. Sun and Abraham (2020) show the coefficients in this event study specification can be written as a linear combination of cohort-specific effects from both its own relative period and other relative periods. 
+To estimate the dynamic effects of an absorbing treatment, researchers often use two-way fixed effects regressions that include leads and lags of the treatment (event study specification). 
+Units are categorized into different cohorts based on their initial treatment timing. 
+Sun and Abraham (2020) show the coefficients in this event study specification can be written as a linear combination of cohort-specific effects from both its own relative period and other relative periods. 
 {opt eventstudyweights} is a Stata module that estimates these weights for any given event study specification.  
+They also propose the interaction weighted (IW) estimator as an alternative estimator for the estimation of dynamic effects.
+{opt eventstudyinteract} is a Stata model that implements the IW estimator and is maintained at
+{browse "https://github.com/lsun20/eventstudyinteract":https://github.com/lsun20/eventstudyinteract}.
+
 
 {pstd}
 For each relative time indicator specified in {it:rel_time_list}, {opt eventstudyweights} estimates the weights 
 underlying the linear combination of treatment effects in its associated coefficients using
 an auxiliary regression. It provides built-in options to control for fixed effects and covariates
-(see {help eventstudyweights##syntax:Controls}).    {cmd:eventstudyweights} exports these weights to a spreadsheet that can be analyzed separately.
+(see {help eventstudyweights##syntax:Controls}).    {cmd:eventstudyweights} saves these weights in {cmd:e(weights)}.  If specified in in {cmd:saveweights}, exports these weights to a spreadsheet that can be analyzed separately.
  This spreadsheet also contains the cohort and relative time each weight corresponds to, with headers as specified in {opt cohort()} and {opt rel_time()}.
 
 
@@ -96,25 +102,25 @@ Users should shape their dataset to a long format where each observation is at t
 {pstd}Code the relative time categorical variable.{p_end}
 {phang2}. {stata gen ry = year - first_union}{p_end}
 
-{pstd}Suppose we will later use a specification with lead=2 and lag=0,1,2 to estimate the dynamic effect of union status on income.  We first generate these relative time indicators.{p_end}
-{phang2}. {stata gen g_2 = ry == -2}{p_end}
+{pstd}Suppose we will later use a specification with lead<=2 and lag=0,1,>=2 to estimate the dynamic effect of union status on income.  We first generate these relative time indicators.{p_end}
+{phang2}. {stata gen g_2 = ry <= -2}{p_end}
 {phang2}. {stata gen g0 = ry == 0}{p_end}
 {phang2}. {stata gen g1 = ry == 1}{p_end}
-{phang2}. {stata gen g2 = ry == 2}{p_end}
+{phang2}. {stata gen g2 = ry >= 2}{p_end}
 
 {pstd} For the coefficient associate with each of the above relative time indicators in a two-way fixed effects regression, we can estimate the weights and export to a spreadsheet "weights.xlsx".{p_end}
 {phang2}. {stata eventstudyweights g_2 g0 g1 g2, controls(i.idcode i.year) cohort(first_union) rel_time(ry) saveweights("weights") }{p_end}
  
  
 {pstd} To plot the weights underlying the coefficient associate with, e.g.,  relative time indicator lead=2, you may try {p_end}
-{phang2}. {stata import excel "weights.csv", clear firstrow}{p_end}
+{phang2}. {stata import excel "weights.xlsx", clear firstrow}{p_end}
 {phang2}. {stata keep g_2 first_union ry}{p_end}
 {phang2}. {stata reshape wide g_2, i(ry) j(first_union)}{p_end}
-{phang2}. {stata graph twoway line g_2* ry}{p_end}
+{phang2}. {stata graph twoway line g_2* ry, xtitle("relative time") ytitle("weight in TWFE g_2 coefficient") graphregion(fcolor(white)) scheme(sj)}{p_end}
 
 {pstd} You may also check the weights have properties discussed in the paper: {p_end}
 {phang2}. {stata egen w_sum = rowtotal(g_2*)}{p_end}
- 
+
 {marker acknowledgements}{...}
 {title:Acknowledgements}
   
