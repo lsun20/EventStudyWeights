@@ -102,7 +102,7 @@ Users should shape their dataset to a long format where each observation is at t
 {pstd}Code the relative time categorical variable.{p_end}
 {phang2}. {stata gen ry = year - first_union}{p_end}
 
-{pstd}Suppose we will later use a specification with lead<=2 and lag=0,1,>=2 to estimate the dynamic effect of union status on income.  We first generate these relative time indicators.{p_end}
+{pstd}Suppose we will later use a specification with lead<=-2 and lag=0,1,>=2 to estimate the dynamic effect of union status on income.  We first generate these relative time indicators.{p_end}
 {phang2}. {stata gen g_2 = ry <= -2}{p_end}
 {phang2}. {stata gen g0 = ry == 0}{p_end}
 {phang2}. {stata gen g1 = ry == 1}{p_end}
@@ -110,7 +110,9 @@ Users should shape their dataset to a long format where each observation is at t
 
 {pstd} For the coefficient associate with each of the above relative time indicators in a two-way fixed effects regression, we can estimate the weights and export to a spreadsheet "weights.xlsx".{p_end}
 {phang2}. {stata eventstudyweights g_2 g0 g1 g2, controls(i.idcode i.year) cohort(first_union) rel_time(ry) saveweights("weights") }{p_end}
- 
+{pstd} Alternatively, we can view the weights in Stata.{p_end}
+{phang2}. {stata eventstudyweights g_2 g0 g1 g2, controls(i.idcode i.year) cohort(first_union) rel_time(ry) }{p_end}
+{phang2}. {stata mat list e(weights)}{p_end}
  
 {pstd} To plot the weights underlying the coefficient associate with, e.g.,  relative time indicator lead=2, you may try {p_end}
 {phang2}. {stata import excel "weights.xlsx", clear firstrow}{p_end}

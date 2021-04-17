@@ -55,12 +55,13 @@ program define eventstudyweights, eclass sortpreserve
  	matrix colnames `bb' = "`cohort'" "`rel_time'" `dvarlist'
 
 // 	mat list `bb'
-	ereturn clear
-	ereturn matrix weights `bb'
 	if "`saveweights'" != "" {
 		putexcel set `saveweights', replace
 		putexcel A1=matrix(`bb', colnames) using `saveweights',replace
 	}
+	ereturn clear
+	ereturn matrix weights `bb'
+	
 end
 
  
