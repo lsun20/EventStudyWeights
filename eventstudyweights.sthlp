@@ -81,7 +81,7 @@ an auxiliary regression. It provides built-in options to control for fixed effec
 {dlgtab:Main}
 
 {marker by_notes}{...}
-{phang}{opth cohort(varname)} is a categorical varaible that contains the   initial treatment timing of each unit.
+{phang}{opth cohort(varname)} is a categorical varaible that contains the   initial treatment timing of each unit. This categorical variable should be set to be missing for never treated units.
 
 {phang}{opth rel_time(varname)} is a categorical varaible that contains the the relative time for each unit at each calendar time.
 

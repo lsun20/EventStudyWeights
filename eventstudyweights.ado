@@ -34,7 +34,7 @@ program define eventstudyweights, eclass sortpreserve
 	* Initiate empty matrix for weights
 	tempname bb bb_w
 
-	qui levelsof `cohort', local(cohort_list) 
+	qui levelsof `cohort', local(cohort_list) // missing cohort includes the never treated units
 	qui levelsof `rel_time', local(rel_time_list) 
 	* Loop over cohort and relative times
 	foreach yy of local cohort_list {
