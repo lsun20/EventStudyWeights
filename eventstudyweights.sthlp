@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.1  16Dec2020}{...}
+{* *! version 0.2  29jul2021}{...}
 {viewerjumpto "Syntax" "eventstudyweights##syntax"}{...}
 {viewerjumpto "Description" "eventstudyweights##description"}{...}
 {viewerjumpto "Options" "eventstudyweights##options"}{...}
@@ -22,29 +22,38 @@ with relative time indicators (event study specifications)
 {p 8 15 2}
 {cmd:eventstudyweights}
 {rel_time_list} {ifin}
-{weight}
-[{cmd:,} {it:options}]
+{weight} {cmd:,} {opth cohort:(eventstudyweights##main:variable)}
+            {opth rel_time:(eventstudyweights##main:variable)} 
+			{opth absorb:(reghdfe##absvar:absvars)} 
+ [{it:options} {opth covariates:(eventstudyweights##main:varlist)} {opth saveweights:(eventstudyweights##main:filename)}]
  
 {pstd}
-where {it:rel_time_list} is the list of relative time indicators as specified in your two-way fixed effects regression
-{p_end}
-		{it:rel_time_1} [{it:rel_time_2} [...]]  
+where {it:rel_time_list} is the list of relative time indicators as specified in your two-way fixed effects regression. See {help eventstudyweights##examples:illustration} for an example of generating these relative time indicators. 
+The relative time indicators should take the value of zero for never treated units.  {p_end} 
+
+{pstd}
+Users should shape their dataset to a long format where each observation is at the unit-time level. 
+The syntax is similar to {helpb reghdfe} in specifying fixed effects (with {help hdfe##opt_absorb:absorb}) and regressors other than the relative time indicators need to be specified separately in {opth covariates(varlist)}.
+Furthermore, the syntax also requires the user to specify the cohort categories as well as the relative time categories (see {help eventstudyweights##main:explanations below}). 
+See {help eventstudyweights##examples:illustration} for an example of specifying the syntax.
 
 {synoptset 26 tabbed}{...}
 {synopthdr :options}
 {synoptline}
+{marker main}{...}
 {syntab :Main}
-{synopt :{opth cohort(varname)}}numerical variable that corresponds to cohort (see {help eventstudyweights##by_notes:important notes below}){p_end}
-{synopt :{opth rel_time(varname)}}numerical variable that corresponds to relative time
+{synopt :{opth cohort(varname)}}categorical varaible that contains the initial treatment timing of each unit. This categorical variable should be set to be missing for never treated units.{p_end}
+{synopt :{opth rel_time(varname)}}categorical varaible that contains the time relative to initial treatment for each unit at each calendar time.
 
 {pstd}
-{opt eventstudyweights} requires {helpb hdfe} (Sergio 2015) to be installed to partial out controls and fixed effects from the relative time indicators.
+{opt eventstudyweights} requires {helpb hdfe} (Sergio 2015) to be installed to partial out controls from the relative time indicators.
 {opt eventstudyweights} will prompt the user for installation of
 {helpb hdfe} if necessary.
   
 {syntab :Controls}
-{synopt :{opth control:s(varlist)}}controls and fixed effects as specified in your two-way fixed effects regression
-  
+{synopt :{opth absorb(varlist)}}specifies unit and time fixed effects.{p_end}
+{synopt :{opth covariates(varlist)}}specify covariates that lend validity to the parallel trends assumption, i.e. covariates you would have included in the canonical two-way fixed effects regressions. {p_end}
+
 {syntab :Save Output}
 {synopt :{opt saveweights(filename)}}if specified, save weights to {it:filename}.xlsx along with cohort and relative time, using Stata's built-in {helpb putexcel} {p_end}
 {synoptline}
@@ -77,17 +86,6 @@ an auxiliary regression. It provides built-in options to control for fixed effec
 (see {help eventstudyweights##syntax:Controls}).    {cmd:eventstudyweights} saves these weights in {cmd:e(weights)}.  If specified in in {cmd:saveweights}, exports these weights to a spreadsheet that can be analyzed separately.
  This spreadsheet also contains the cohort and relative time each weight corresponds to, with headers as specified in {opt cohort()} and {opt rel_time()}.
 
-
-{dlgtab:Main}
-
-{marker by_notes}{...}
-{phang}{opth cohort(varname)} is a categorical varaible that contains the   initial treatment timing of each unit. This categorical variable should be set to be missing for never treated units.
-
-{phang}{opth rel_time(varname)} is a categorical varaible that contains the the relative time for each unit at each calendar time.
-
-{pmore}
-Users should shape their dataset to a long format where each observation is at the unit-time level. Users should prepare the cohort and relative time variables as illustrated in the example. 
- 
 {marker examples}{...}
 {title:Examples}
 
@@ -109,9 +107,9 @@ Users should shape their dataset to a long format where each observation is at t
 {phang2}. {stata gen g2 = ry >= 2}{p_end}
 
 {pstd} For the coefficient associate with each of the above relative time indicators in a two-way fixed effects regression, we can estimate the weights and export to a spreadsheet "weights.xlsx".{p_end}
-{phang2}. {stata eventstudyweights g_2 g0 g1 g2, controls(i.idcode i.year) cohort(first_union) rel_time(ry) saveweights("weights") }{p_end}
+{phang2}. {stata eventstudyweights g_2 g0 g1 g2, absorb(i.idcode i.year) cohort(first_union) rel_time(ry) saveweights("weights") }{p_end}
 {pstd} Alternatively, we can view the weights in Stata.{p_end}
-{phang2}. {stata eventstudyweights g_2 g0 g1 g2, controls(i.idcode i.year) cohort(first_union) rel_time(ry) }{p_end}
+{phang2}. {stata eventstudyweights g_2 g0 g1 g2, absorb(i.idcode i.year) cohort(first_union) rel_time(ry) }{p_end}
 {phang2}. {stata mat list e(weights)}{p_end}
  
 {pstd} To plot the weights underlying the coefficient associate with, e.g.,  relative time indicator lead=2, you may try {p_end}
