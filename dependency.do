@@ -1,0 +1,1 @@
+capture ssc install hdfe

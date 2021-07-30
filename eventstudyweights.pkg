@@ -1,0 +1,7 @@
+v 0.0.2
+d 'EVENTSTUDYWEIGHTS': estimate the implied weights underlying two-way fixed effects (event study) regressions 
+d Distribution-Date:   20210729
+d License: MIT
+d 
+F eventstudyweights.ado
+F eventstudyweights.sthlp

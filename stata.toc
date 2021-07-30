@@ -1,0 +1,7 @@
+v 0.0.2
+d Materials by Liyang Sun
+d https://github.com/lsun20/eventstudyweights
+
+d 'eventstudyweights': estimate the implied weights underlying two-way fixed effects (event study) regressions 
+
+p eventstudyweights
