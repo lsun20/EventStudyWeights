@@ -2,15 +2,15 @@
 ** version 0.0  31aug2020  Liyang Sun, lsun20@mit.edu
 program define eventstudyweights, eclass sortpreserve
 	version 13 
-	syntax varlist(min=1 numeric) [if] [in] [aw fw iw pw], absorb(varlist numeric ts fv) cohort(varname) ///
+	syntax varlist(min=1 numeric) [if] [in] [aweight fweight], cohort(varname) ///
 		rel_time(varname) ///
-		[COVARIATEs(varlist numeric ts fv)  saveweights(string)  ///
+		CONTROLs(varlist numeric ts fv)  [saveweights(string)  ///
 		*]
 	set more off
 	
 	* Mark sample (reflects the if/in conditions, and includes only nonmissing observations)
 	marksample touse
-	markout `touse' `by' `xq' `covariates' `absorb', strok
+	markout `touse' `by' `xq' `controls' `absorb', strok
 	* Prepare the list of relative time indicators for partialling out
 	local nvarlist ""
 	local dvarlist ""
@@ -30,7 +30,7 @@ program define eventstudyweights, eclass sortpreserve
 		di in smcl "{stata ssc install hdfe :ssc install hdfe}"
 					exit 601
 	}
-	qui hdfe  `nvarlist' `covariates'  if `touse' [`weight'`exp'], absorb(`absorb') clear keepvars(`avarlist') // residuals are stored in `nvarlist' 
+	qui hdfe  `nvarlist' `wt' if `touse', absorb(`controls') clear keepvars(`avarlist') // residuals are stored in `nvarlist' 
 	* Initiate empty matrix for weights
 	tempname bb bb_w
 
@@ -43,7 +43,7 @@ program define eventstudyweights, eclass sortpreserve
 			qui count if `cohort' == `yy' & `rel_time' == `rr'
 			if r(N) >0 {
 				qui gen `catt'  = (`cohort' == `yy') * (`rel_time' == `rr')
-				qui regress `catt'   `nvarlist' if `touse' [`weight'`exp'], nocons
+				qui regress `catt'   `nvarlist'  `wt' if `touse', nocons
 				mat `bb_w' = e(b)
 				mat `bb_w' = `yy', `rr', `bb_w'
 				matrix `bb'  = nullmat(`bb') \ `bb_w'
