@@ -2,7 +2,7 @@
 
 **eventstudyweights** is a Stata package that estimates the implied weights on the cohort-specific average treatment effects 
 on the treated (CATTs) underlying two-way fixed effects regressions 
-with relative time indicators (event study specifications) as derived in Sun and Abraham (2020).  An accompanying package [**eventstudyinteract**] (https://github.com/lsun20/EventStudyInteract)
+with relative time indicators (event study specifications) as derived in Sun and Abraham (2020).  An accompanying package [eventstudyinteract](https://github.com/lsun20/EventStudyInteract)
 implements the interaction weighted estimator for an event study proposed by Sun and Abraham (2020) as an alternative to the canonical two-way fixed effects regressions with relative time indicators.  
 
 ## Installation
