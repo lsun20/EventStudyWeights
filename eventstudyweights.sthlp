@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.2  29jul2021}{...}
+{* *! version 0.2  29aug2021}{...}
 {viewerjumpto "Syntax" "eventstudyweights##syntax"}{...}
 {viewerjumpto "Description" "eventstudyweights##description"}{...}
 {viewerjumpto "Options" "eventstudyweights##options"}{...}
@@ -13,9 +13,18 @@
 {p2col :{hi:eventstudyweights} {hline 2}}
 estimate the implied weights on the cohort-specific average treatment effects 
 on the treated (CATTs) underlying two-way fixed effects regressions 
-with relative time indicators (event study specifications) 
-{p_end}
+with relative time indicators (event study specifications).
+To estimate the dynamic effects of an absorbing treatment, researchers often use two-way fixed effects regressions that include leads and lags of the treatment (event study specification). 
+Units are categorized into different cohorts based on their initial treatment timing. 
+Sun and Abraham (2020) show the coefficients in this event study specification can be written as a linear combination of cohort-specific effects from both its own relative period and other relative periods. 
+{opt eventstudyweights} is a Stata module that estimates these weights for any given event study specification.
+For the latest version, please check {browse "https://github.com/lsun20/EventStudyWeights":https://github.com/lsun20/EventStudyWeights}.
+{break}
+Sun and Abraham (2020) also propose the interaction weighted (IW) estimator as an alternative estimator for the estimation of dynamic effects.
+{opt eventstudyinteract} is a Stata model that implements the IW estimator and is maintained at
+{browse "https://github.com/lsun20/eventstudyinteract":https://github.com/lsun20/eventstudyinteract}.
 {p2colreset}{...}
+
  
 {marker syntax}{title:Syntax}
 
@@ -69,15 +78,6 @@ see {help weight}.
 {opt eventstudyweights} estimate weights underlying two-way fixed effects regressions with relative time indicators, 
 It is optimized for speed in large panel datasets thanks to {helpb hdfe}.
 
-{pstd}
-To estimate the dynamic effects of an absorbing treatment, researchers often use two-way fixed effects regressions that include leads and lags of the treatment (event study specification). 
-Units are categorized into different cohorts based on their initial treatment timing. 
-Sun and Abraham (2020) show the coefficients in this event study specification can be written as a linear combination of cohort-specific effects from both its own relative period and other relative periods. 
-{opt eventstudyweights} is a Stata module that estimates these weights for any given event study specification.  
-They also propose the interaction weighted (IW) estimator as an alternative estimator for the estimation of dynamic effects.
-{opt eventstudyinteract} is a Stata model that implements the IW estimator and is maintained at
-{browse "https://github.com/lsun20/eventstudyinteract":https://github.com/lsun20/eventstudyinteract}.
-
 
 {pstd}
 For each relative time indicator specified in {it:rel_time_list}, {opt eventstudyweights} estimates the weights 
@@ -112,19 +112,20 @@ an auxiliary regression. It provides built-in options to control for fixed effec
 {phang2}. {stata eventstudyweights g_2 g0 g1 g2, absorb(i.idcode i.year) cohort(first_union) rel_time(ry) }{p_end}
 {phang2}. {stata mat list e(weights)}{p_end}
  
-{pstd} To plot the weights underlying the coefficient associate with, e.g.,  relative time indicator lead=2, you may try {p_end}
+{pstd} To examine  the weights underlying the coefficient associate with, e.g.,  relative time indicator lead=2, you may try {p_end}
 {phang2}. {stata import excel "weights.xlsx", clear firstrow}{p_end}
 {phang2}. {stata keep g_2 first_union ry}{p_end}
-{phang2}. {stata reshape wide g_2, i(ry) j(first_union)}{p_end}
-{phang2}. {stata graph twoway line g_2* ry, xtitle("relative time") ytitle("weight in TWFE g_2 coefficient") graphregion(fcolor(white)) scheme(sj)}{p_end}
 
-{pstd} You may also check the weights have properties discussed in the paper: {p_end}
-{phang2}. {stata egen w_sum = rowtotal(g_2*)}{p_end}
+{pstd} You may also check the weights have properties discussed in the paper and visualize the properties: {p_end}
+{phang2}. {stata collapse (sum) w_sum = g_2, by(ry)}{p_end}
+{phang2}. {stata label variable w_sum "cohort-ry weights in TWFE g_2 coefficient (sum across cohorts)"}{p_end}
+{phang2}. {stata twoway bar w_sum ry, graphregion(fcolor(white)) scheme(sj)}{p_end}
+
 
 {marker acknowledgements}{...}
 {title:Acknowledgements}
   
-{pstd}Thank you to the users of early versions of the program who devoted time to reporting
+{pstd}Thank you to the users of the program who devoted time to reporting
 the bugs that they encountered.
  
 {marker references}{...}
